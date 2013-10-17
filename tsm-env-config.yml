@@ -1,11 +1,24 @@
 ---
-cloud_id: '2'
-deployment_name: 'TSM Provision Test 1'
-deployment_desc: 'Deployment created by Ruby/Jenkins'
+cloud:
+  - cloud_id: '2'
+network:
+  - network_cidr: '10.80.0.0/16'
+deployment:
+  - deployment_name: 'TSM Provision Test 1'
+    deployment_runtime_file: '_deployment.yml'
 servers:
   - server_name: 'My New Server 1'
     server_size: 'blah'
     server_template: 'Linux MCI v1'
+    server_inputs:
+      - input1: 'text:value'
+        input2: 'text:value'
   - server_name: 'My New Server 2'
     server_size: 'blah'
     server_template: 'Linux MCI v1'
+    server_inputs:
+      - input1: 'text:value'
+        input2: 'text:value'
+server_arrays:
+  - server_array_name: 'My New Server Array 1'
+    server_array_size: 'blah'
