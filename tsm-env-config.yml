@@ -1,0 +1,11 @@
+---
+cloud_id: '2'
+deployment_name: 'TSM Provision Test 1'
+deployment_desc: 'Deployment created by Ruby/Jenkins'
+servers:
+  - server_name: 'My New Server 1'
+    server_size: 'blah'
+    server_template: 'Linux MCI v1'
+  - server_name: 'My New Server 2'
+    server_size: 'blah'
+    server_template: 'Linux MCI v1'
