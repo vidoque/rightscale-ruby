@@ -4,6 +4,7 @@ require 'pp'
 require 'yaml'
 require 'getoptlong'
 require 'right_api_client'
+require 'tmpdir'
 
 @client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
 
@@ -11,16 +12,22 @@ opts = GetoptLong.new(
   [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
   [ '--config-file', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--force', GetoptLong::NO_ARGUMENT ],
+  [ '--save', GetoptLong::NO_ARGUMENT ]
 )
 
-forced = false
+force = false
+save  = false
 
 opts.each do |opt, arg|
   case opt
   when '--help'
-    puts 'ruby deployment.rb [create/delete] --config-file=<filename> [--force]
-    --force : On create action, script will delete an existing deployment 
-              with the same name and then re-create it'
+    puts 'ruby deployment.rb [create|delete] --config-file=<filename> [--force]
+    --config-file : Path to environment config file. Can be relative or 
+                    absolute.
+    --force       : On create action, script will delete an existing deployment 
+                    with the same name and then re-create it.
+    --save        : Save HREF of new resource in the YAML file specified in 
+                    config file *_runtime_file.'
     puts ''
     exit 0
 
@@ -30,11 +37,13 @@ opts.each do |opt, arg|
     @deployment_runtime_file = config['deployment'][0]['deployment_runtime_file']
 
   when '--force'
-    forced = true
+    force = true
 
-  end #end case
+  when '--save'
+    save = true
 
-end #end do
+  end
+end
 
 unless ARGV.count > 0
   puts 'Provide an action to be executed create/delete'
@@ -45,7 +54,7 @@ action = ARGV[0]
 
 case action
 when 'create'
-  if forced == true
+  if force == true
     existing_deployment = @client.deployments.index(:filter => ["name==#{@deployment_name}"]).first
     unless existing_deployment.nil? 
       print "Forcing deletion of #{@deployment_name} (#{existing_deployment.show.href})..."
@@ -59,7 +68,7 @@ when 'create'
         puts "OK"
       end
     end
-  end # endif
+  end 
   deployment_params = { :deployment => {
     :name => @deployment_name,
     :description => 'Deployment created by Ruby/Jenkins'
@@ -73,8 +82,11 @@ when 'create'
   else
     print "Created #{@deployment_name} (#{new_deployment.show.href})..."
     puts "OK"
-    puts new_deployment.show.href.to_yaml
-    File.open(@deployment_runtime_file, 'w') {|f| f.write new_deployment.show.href.to_yaml }
+    if save == true
+      runtime_file = File.join(Dir.tmpdir, @deployment_runtime_file)
+      puts "Saved to #{runtime_file}"
+      File.open(runtime_file, 'w') {|f| f.write new_deployment.show.href.to_yaml }
+    end
   end
   exit 0
 
@@ -93,4 +105,4 @@ when 'delete'
     end
   end
   exit 0
-end #end case
+end
