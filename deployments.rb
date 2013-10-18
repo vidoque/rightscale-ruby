@@ -12,11 +12,11 @@ opts = GetoptLong.new(
   [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
   [ '--config-file', GetoptLong::REQUIRED_ARGUMENT ],
   [ '--force', GetoptLong::NO_ARGUMENT ],
-  [ '--save', GetoptLong::NO_ARGUMENT ]
+  [ '--no-save', GetoptLong::NO_ARGUMENT ]
 )
 
 force = false
-save  = false
+no_save  = false
 
 opts.each do |opt, arg|
   case opt
@@ -26,8 +26,8 @@ opts.each do |opt, arg|
                     absolute.
     --force       : On create action, script will delete an existing deployment 
                     with the same name and then re-create it.
-    --save        : Save HREF of new resource in the YAML file specified in 
-                    config file *_runtime_file.'
+    --no-save     : Specify TO NOT save the HREF of new resource in the YAML file  
+                    specified in config file *_runtime_file.'
     puts ''
     exit 0
 
@@ -39,8 +39,8 @@ opts.each do |opt, arg|
   when '--force'
     force = true
 
-  when '--save'
-    save = true
+  when '--no-save'
+    no_save = true
 
   end
 end
@@ -82,10 +82,13 @@ when 'create'
   else
     print "Created #{@deployment_name} (#{new_deployment.show.href})..."
     puts "OK"
-    if save == true
+    if no_save == false
       runtime_file = File.join(Dir.tmpdir, @deployment_runtime_file)
-      puts "Saved to #{runtime_file}"
+      puts "Saved output to #{runtime_file}"
       File.open(runtime_file, 'w') {|f| f.write new_deployment.show.href.to_yaml }
+    else 
+      puts "WARNING: You have specified --no-save at the command line."
+      puts "Not saving the output will mean that downstream scripts could create in another Deployment. Ouch."
     end
   end
   exit 0
