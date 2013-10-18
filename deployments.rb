@@ -21,7 +21,7 @@ save  = false
 opts.each do |opt, arg|
   case opt
   when '--help'
-    puts 'ruby deployment.rb [create|delete] --config-file=<filename> [--force]
+    puts 'ruby deployment.rb [create|delete] --config-file=<filename> [--force] [--save]
     --config-file : Path to environment config file. Can be relative or 
                     absolute.
     --force       : On create action, script will delete an existing deployment 
@@ -33,8 +33,8 @@ opts.each do |opt, arg|
 
   when '--config-file'
     config = YAML.load_file(arg)
-    @deployment_name = config['deployment'][0]['deployment_name']
-    @deployment_runtime_file = config['deployment'][0]['deployment_runtime_file']
+    @deployment_name = config['deployments'][0]['deployment_name']
+    @deployment_runtime_file = config['deployments'][0]['deployment_runtime_file']
 
   when '--force'
     force = true
