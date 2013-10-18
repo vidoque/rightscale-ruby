@@ -6,6 +6,7 @@ network:
 deployments:
   - deployment_name: 'TSM Provision Test 1'
     deployment_runtime_file: '_deployments.yml'
+    deployment_href: 'runtime'
   - servers:
     - server_name: 'My New Server 1'
       server_cloud_id: '2'
