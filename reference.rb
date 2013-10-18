@@ -8,6 +8,8 @@ require 'right_api_client'
 #server_name = 'My New Server 1'
 #template_name = 'Linux MCI v1'
 #cloud_id = '2'
+
+=begin
 configfile = 'tsm-env-config.yml'
 
 @client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
@@ -23,6 +25,7 @@ config.each { |key, value| instance_variable_set("@#{key}", value) }
     puts server['server_size']
     puts server['server_template']
 }
+=end
 
 =begin
 server_template_href = @client.server_templates.index(:filter => ["name==#{template_name}"]).first.href
@@ -55,5 +58,14 @@ inputs = "inputs[][name]=MYINPUT&inputs[][value]=text:helloworld"
 new_server.show.launch(inputs)
 =end
 
+@client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
+cloud = @client.clouds(:id => '2').show
 
+server = {'server_ssh_key_uid' => 'tsmkey01' }
+pp server['server_ssh_key_uid']
 
+puts cloud.ssh_keys.index(:filter => ["resource_uid==#{server['server_ssh_key_uid']}"]).first.href
+#pp cloud.subnets.index(:filter => ["name=='default for eu-west-1a'"]).first.href
+#pp [cloud.security_groups.index(:filter => ['name==default']).first.href]
+#pp cloud.subnets.index(:filter => ["resource_uid==subnet-4484782e"]).first.href
+#pp cloud.security_groups.index(:filter => ["resource_uid==sg-2946b046"]).first.href
