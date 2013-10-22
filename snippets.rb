@@ -58,19 +58,29 @@ inputs = "inputs[][name]=MYINPUT&inputs[][value]=text:helloworld"
 new_server.show.launch(inputs)
 =end
 
-@client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
+
+if --credentials-file is set
+  @client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
+
+elsif ENV[username] is set && ENV[password] is set
+  @client = RightApi::Client.new(:email => 'my@email.com', :password => 'my_password', :account_id => 'my_account_id')
+
+else
+  raise "No Rightscale login details found. Use a credentials file or set username/password as environment variables."
+
+end
+# 
+
+
 cloud = @client.clouds(:id => '2').show
 
 #server = {'server_ssh_key_uid' => 'tsmkey01' }
 #pp server['server_ssh_key_uid']
 
-server = {'server_subnet_id' => 'subnet-49847823', 'server_ssh_key_uid' => 'tsmkey01', 'server_security_group_uid' => 'sg-2946b046' }
-puts server['server_subnet_id']
-puts server['server_ssh_key_uid']
-puts server['server_security_group_uid']
+server = { 'server_ssh_key_uid' => 'tsmkey01' }
 
 #server_security_group_uidputs cloud.ssh_keys.index(:filter => ["resource_uid==#{server['server_ssh_key_uid']}"]).first.href
 puts cloud.ssh_keys.index(:filter => ["resource_uid==#{server['server_ssh_key_uid']}"]).first.href
 #puts cloud.security_groups.index(:filter => ["resource_uid==#{server['server_security_group_uid']}"]).first.href
-puts cloud.security_groups.index
+
 #puts cloud.subnets.index(:filter => ["resource_uid==#{server['server_subnet_uid']}"]).first.href
