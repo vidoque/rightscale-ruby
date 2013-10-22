@@ -61,11 +61,16 @@ new_server.show.launch(inputs)
 @client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
 cloud = @client.clouds(:id => '2').show
 
-server = {'server_ssh_key_uid' => 'tsmkey01' }
-pp server['server_ssh_key_uid']
+#server = {'server_ssh_key_uid' => 'tsmkey01' }
+#pp server['server_ssh_key_uid']
 
+server = {'server_subnet_id' => 'subnet-49847823', 'server_ssh_key_uid' => 'tsmkey01', 'server_security_group_uid' => 'sg-2946b046' }
+puts server['server_subnet_id']
+puts server['server_ssh_key_uid']
+puts server['server_security_group_uid']
+
+#server_security_group_uidputs cloud.ssh_keys.index(:filter => ["resource_uid==#{server['server_ssh_key_uid']}"]).first.href
 puts cloud.ssh_keys.index(:filter => ["resource_uid==#{server['server_ssh_key_uid']}"]).first.href
-#pp cloud.subnets.index(:filter => ["name=='default for eu-west-1a'"]).first.href
-#pp [cloud.security_groups.index(:filter => ['name==default']).first.href]
-#pp cloud.subnets.index(:filter => ["resource_uid==subnet-4484782e"]).first.href
-#pp cloud.security_groups.index(:filter => ["resource_uid==sg-2946b046"]).first.href
+#puts cloud.security_groups.index(:filter => ["resource_uid==#{server['server_security_group_uid']}"]).first.href
+puts cloud.security_groups.index
+#puts cloud.subnets.index(:filter => ["resource_uid==#{server['server_subnet_uid']}"]).first.href
