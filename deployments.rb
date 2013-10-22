@@ -6,24 +6,26 @@ require 'getoptlong'
 require 'right_api_client'
 require 'tmpdir'
 
-@client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
+#@client = RightApi::Client.new(YAML.load_file(File.expand_path('../login.yml', __FILE__)))
 
 opts = GetoptLong.new(
   [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
   [ '--config-file', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--cred-file', GetoptLong::OPTIONAL_ARGUMENT ],
   [ '--force', GetoptLong::NO_ARGUMENT ],
   [ '--no-save', GetoptLong::NO_ARGUMENT ]
 )
 
+cred_file = ''
 force = false
 no_save  = false
 
 opts.each do |opt, arg|
   case opt
   when '--help'
-    puts 'ruby deployment.rb [create|delete] --config-file=<filename> [--force] [--save]
-    --config-file : Path to environment config file. Can be relative or 
-                    absolute.
+    puts 'ruby deployments.rb [create|delete] --config-file=<filename> [--force] [--save]
+    --config-file : Path to environment config file. 
+    --cred-file   : Path to Rightscale credential file.
     --force       : On create action, script will delete an existing deployment 
                     with the same name and then re-create it.
     --no-save     : Specify TO NOT save the HREF of new resource in the YAML file  
@@ -32,9 +34,10 @@ opts.each do |opt, arg|
     exit 0
 
   when '--config-file'
-    config = YAML.load_file(arg)
-    @deployment_name = config['deployments'][0]['deployment_name']
-    @deployment_runtime_file = config['deployments'][0]['deployment_runtime_file']
+    @config = YAML.load_file(arg)
+
+  when '--cred-file'
+    cred_file = arg
 
   when '--force'
     force = true
@@ -51,6 +54,21 @@ unless ARGV.count > 0
 end
 
 action = ARGV[0]
+
+# Login
+if (defined? cred_file) and cred_file != ''
+  @client = RightApi::Client.new(YAML.load_file(cred_file))
+else (defined? ENV['RS_EMAIL']) and (defined? ENV['RS_PASSWORD']) and (defined? ENV['RS_ACCOUNTID'])
+  begin
+    @client = RightApi::Client.new(:email => ENV['RS_EMAIL'], :password => ENV['RS_PASSWORD'], :account_id => ENV['RS_ACCOUNTID'])
+  rescue
+    raise "No Rightscale login details found. Use a cred file or set username/password as environment variables."
+  end
+end
+
+# Currently only supports a single deployment (the first) per config file
+@deployment_name = @config['deployments'][0]['deployment_name']
+@deployment_runtime_file = @config['deployments'][0]['deployment_runtime_file']
 
 case action
 when 'create'
