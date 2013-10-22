@@ -1,0 +1,29 @@
+---
+meta:
+  - environment_name: 'build'
+  - schema_version: '0.1'
+network:
+  - network_cidr: '10.90.0.0/16'
+deployments:
+  - deployment_name: 'TSM Build 1'
+    deployment_runtime_file: '_deployments.yml'
+    deployment_href: 'runtime'
+    servers:
+    - server_name: 'TSM Jenkins Master 1'
+      server_tag: 'jenkins'
+      server_cloud_id: '2'
+      server_instance_type: 'm1.small'
+      server_template: 'TSM Jenkins Template'
+      server_ssh_key_uid: 'tsmkey01'
+      server_subnet_uid: 'subnet-4484782e'
+      server_subnet_href: '/api/clouds/2/subnets/F0H2QSEPA155C'
+      server_security_group_uid: 'sg-5146b03e'
+      server_runtime_file: '_servers.yml'
+      server_inputs:
+        - BRANCH_OR_TAG: 'text:master'
+          NODE_TYPE: 'text:jenkins'
+          HELLOTEXT: 'Server created by right_api_client'
+    server_arrays:
+    - server_array_name: 'My New Server Array 1'
+      server_array_cloud_id: '2'
+      server_array_size: 'm1.small'
