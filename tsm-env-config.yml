@@ -16,7 +16,7 @@ deployments:
       server_template: 'Linux MCI v1'
       server_ssh_key_uid: 'tsmkey01'
       server_subnet_uid: 'subnet-4484782e'
-      server_subnet_href: '/api/clouds/2/subnets/F0H2QSEPA155C'
+      server_subnet_href: '/api/clouds/2/subnets/7OFIS9S4A3690'
       server_security_group_uid: 'sg-2946b046'
       server_runtime_file: '_servers.yml'
       server_inputs:
@@ -36,7 +36,7 @@ deployments:
       server_template: 'Linux MCI v1'
       server_ssh_key_uid: 'tsmkey01'
       server_subnet_uid: 'subnet-4484782e'
-      server_subnet_href: '/api/clouds/2/subnets/F0H2QSEPA155C'
+      server_subnet_href: '/api/clouds/2/subnets/7OFIS9S4A3690'
       server_security_group_uid: 'sg-2b46b044'
       server_runtime_file: '_servers.yml'
       server_inputs:
