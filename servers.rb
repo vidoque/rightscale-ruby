@@ -1,5 +1,7 @@
 # servers.rb
 
+# Reference: http://reference.rightscale.com/api1.5/resources/ResourceServers.html
+
 require 'pp' 
 require 'yaml'
 require 'getoptlong'
@@ -49,7 +51,7 @@ opts.each do |opt, arg|
 end
 
 unless ARGV.count > 0
-  puts 'Provide an action to be executed create/delete'
+  puts 'Provide an action to be executed'
   exit 1
 end
 
@@ -73,6 +75,7 @@ if deployment_href == "runtime" || deployment_href.nil? || deployment_href.empty
   end
 end
 
+# 
 case action
   when 'create'
 
@@ -84,7 +87,8 @@ case action
       server_template_href  = @client.server_templates.index(:filter => ["name==#{server['server_template']}"]).first.href
       ssh_key_href          = cloud.ssh_keys.index(:filter => ["resource_uid==#{server['server_ssh_key_uid']}"]).first.href
       security_group_hrefs  = [cloud.security_groups.index(:filter => ["resource_uid==#{server['server_security_group_uid']}"]).first.href]
-      #TODO: subnet_hrefs          = [cloud.subnets.index(:filter => ["name==#{server['server_subnet_uid']}"]).first.href]
+      #TODO: subnet_hrefs   = [cloud.subnets.index(:filter => ["name==#{server['server_subnet_uid']}"]).first.href]
+      subnet_hrefs          = [server['server_subnet_href']]
 
       server_params = { :server => {
       :name => server['server_name'],
@@ -94,43 +98,42 @@ case action
         :server_template_href => server_template_href,
         :cloud_href           => cloud_href,
         :security_group_hrefs => security_group_hrefs,
-        :ssh_key_href         => ssh_key_href
+        :ssh_key_href         => ssh_key_href,
+        :subnet_hrefs         => subnet_hrefs
       }}}
-    new_server = @client.servers.create(server_params)
+      
+      new_server = @client.servers.create(server_params)
+      puts "Created #{server['server_name']}"
 
-    #inputs = "inputs[][name]=MYINPUT&inputs[][value]=text:helloworld"
-    #new_server.show.launch(inputs)
+      #TODO: Add tag to new_server
 
-    end
+      # Launch server
+      unless no_auto_start == true
+        @inputs = []
+        server['server_inputs'].each do | input_hash |
+          input_hash.each do | input_name, input_value |
+            @inputs << "inputs[][name]=#{input_name}&inputs[][value]=#{input_value}" # 1.0 notation (deprecated)
+            #@inputs << %Q(inputs[#{input_name}]=#{input_value}) # 2.0 notation but not working
+            @inputs.inspect
+          end
+        end
+
+        inputs_join = @inputs.join('&')
+
+        new_server.show.launch(inputs_join)
+        puts "Launched #{server['server_name']}"
+        puts "With inputs:"
+        puts inputs_join
+
+      end # end unless
+
+    end # end do
+
+  when 'delete'
+
+    puts "Delete functionality not yet implemented"
+    exit 0
 
 end # end case
 
-=begin
-
-Reference:
-
-name                                    required  type  values  regexp  blank?  description
-server[name]                            yes String  * * no  The name of the server.
-server[deployment_href]                 no  String  * * no  The href of the deployment to which the Server will be added.
-server[description]                     no  String  * * no  The server description.
-server[instance]                        yes Hash  * * no  
-server[instance][cloud_href]            yes String  * * no  The href of the cloud that the Server should be added to.
-server[instance][datacenter_href]       no  String  * * no  The href of the Datacenter / Zone.
-server[instance][image_href]            no  String  * * no  The href of the Image to use.
-server[instance][instance_type_href]    no  String  * * no  The href of the instance type.
-server[instance][server_template_href]  yes String  * * no  The href of the Server Template.
-server[instance][security_group_hrefs]  no  Array * * no  The hrefs of the security groups.
-server[instance][ssh_key_href]          no  String  * * no  The href of the SSH key to use.
-server[instance][subnet_hrefs]          no  Array * * no  The hrefs of the updated subnets.
-
-
-
-server[instance][inputs]  no  Enumerable  * * no  
-server[instance][inputs][*] no  String  * * no  The format used for passing 2.0-style Inputs. The key is the name of the input, and the value is the value to assign to the input. For more details on 2.0-style inputs, please see Inputs#multi_update.
-server[instance][inputs][][name]  no  String  * * no  The input name. This format is used for passing legacy 1.0-style Inputs. Will eventually be deprecated.
-server[instance][inputs][][value] no  String  * * no  The value of that input. Should be of the form 'text:my_value' or 'cred:MY_CRED' etc. This format is used for passing legacy 1.0-style Inputs. Will eventually be deprecated.
-server[instance][ramdisk_image_href]  no  String  * * no  The href of the ramdisk image.
-server[instance][user_data] no  String  * * no  User data that RightScale automatically passes to your instance at boot time.
-server[optimized] no  String  true, false * no  A flag indicating whether Instances of this Server should be optimized for high-performance volumes (e.g. Volumes supporting a specified number of IOPS). Not supported in all Clouds.
-
-=end
+exit 0
